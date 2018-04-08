@@ -50,7 +50,7 @@ import System.IO
 import System.PlanB
 import qualified Data.ByteString     as B
 import qualified Data.Conduit        as C
-import qualified Data.Conduit.BZlib  as BZ
+-- import qualified Data.Conduit.BZlib  as BZ
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List   as CL
 import qualified Data.Conduit.Zlib   as Z
@@ -465,8 +465,8 @@ sinkData h compression = do
         dataSink
       Deflate -> withCompression $
         Z.compress 9 (Z.WindowBits (-15)) .| dataSink
-      BZip2   -> withCompression $
-        BZ.bzip2 .| dataSink
+      BZip2   -> error "BZip2 method not supported"
+      -- withCompression $ BZ.bzip2 .| dataSink
   return DataDescriptor
     { ddCRC32            = fromIntegral crc32
     , ddCompressedSize   = compressedSize
@@ -974,7 +974,7 @@ decompressingPipe
   -> Conduit ByteString m ByteString
 decompressingPipe Store   = C.awaitForever C.yield
 decompressingPipe Deflate = Z.decompress $ Z.WindowBits (-15)
-decompressingPipe BZip2   = BZ.bunzip2
+decompressingPipe BZip2   = error "BZip2 method not supported" -- BZ.bunzip2
 
 -- | Sink that calculates CRC32 check sum for incoming stream.
 
